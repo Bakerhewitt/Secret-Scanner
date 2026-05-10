@@ -3,6 +3,13 @@ import os
 import argparse
 import logging
 
+#Logging was written with the assistance of Claude
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
+
 patterns = [
     r'password\s*=\s*\S+', 
     r'[a-f0-9]{32}', #Datadog API Key
@@ -17,18 +24,23 @@ patterns = [
 secrets = []
 
 def _secretsearch_file_():
-    filename = input("Enter filename for investigation: ")
+    filename = input("Enter file path for investigation: :")
     try:
         with open(filename, "r", encoding="utf-8") as f:
-            file_data = f.read()
-            for line_number, line in enumerate(file_data, start=1):
+#            file_data = f.read() # This line was removed at the recommendation of Claude
+            for line_number, line in enumerate(f, start=1): #This line was edited by Claude to replace filename with f
                 for pattern in patterns:
                     matches = re.findall(pattern, line)
                     if matches:
                         secrets.append([filename, line_number, matches])
-        print("Secrets found: ", secrets)
+                        logging.warning(f"Match found at line {line_number} in {filename}: {matches}") #This line was written with the assistance of Claude
+        if secrets:
+            print("Secrets found: ", secrets) 
+        else:
+            print("No secrets found.")
     except FileNotFoundError:
-        print("File not found.")
+        print("File not found.")   
+
         
         
 def _secretsearch_directory_():
@@ -37,17 +49,24 @@ def _secretsearch_directory_():
         for file in files:
             filepath = os.path.join(root, file)
             try:
-                with open(filepath, "r") as f:
-                    file_data = f.read()
-                    for line_number, line in enumerate(file_data, start=1):
+                with open(filepath, "r", encoding="utf-8") as f:
+                    #This line was changed from with open(filepath, "r") as f: 
+#                   file_data = f.read() # This line was removed at the recommendation of Claude
+                    for line_number, line in enumerate(f, start=1):
                         for pattern in patterns:
                             matches = re.findall(pattern, line)
                             if matches:
                                 secrets.append([filepath, line_number, matches])
-
-                    print("Secrets found: ", secrets)
+                                #The below lines were written with the assistance of Claude
+                                logging.warning(f"Match found at line {line_number} in {filepath}: {matches}") # This line was written with the assistance of Claude
             except FileNotFoundError:
                 print("File not found.")
+            except UnicodeDecodeError:
+                pass
+    if secrets:
+        print("Secrets found: ", secrets)
+    else:
+        print("No secrets found.")
         
 def _search_():
     print("Choose an option:")
@@ -75,12 +94,23 @@ def _search_():
 #Validation occurs here? I'm not sure
         
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Secret Scanner - Scans files or directories for hardcoded secrets.") #From here to the next comment was written with the assistance of Claude
+    parser.add_argument("--path", help="Path to a file or directory to scan")
+    parser.add_argument("--type", choices=["file", "directory"], help="Type of scan: 'file' or 'directory'")
+    args = parser.parse_args()
+
+    if args.path and args.type:
+        if args.type == "file":
+            _secretsearch_file_()
+        elif args.type == "directory":
+            _secretsearch_directory_() #Endpoint of Claude assistance
+   
     choice = input("Would you like to search for some secrets?").strip().lower()
     #Scrub for spaces and capital letters here, allow variations of Yes/yes No/no 
     
-    if choice == "Yes":
+    if choice == "yes":
         _search_()
-    elif choice == "No":
+    elif choice == "no":
         print("Scaredy cat!")
     else:
         print("Invalid choice.")
