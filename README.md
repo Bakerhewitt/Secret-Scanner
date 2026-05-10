@@ -4,6 +4,7 @@ Baker Hewitt
 ## Overview
 
 **Secret Scanner** is a regex scanner that mines for "secrets" within an inputted file or directory.
+**Video Demonstration** https://youtu.be/NOhxoq9C02c 
 
 ## Features
 - **Dual Scan Modes**: Can scan either a single file or an entire directory recursively.
