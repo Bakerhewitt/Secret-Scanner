@@ -19,4 +19,4 @@ Baker Hewitt
 Python Interpreter
 
 ## Disclaimer
-**AI Usage** The final version was completed with the assistance of Claude, as I was struggling to fill the gaps necessary for the CLI interface and logging. For exact updates and changes, please compare both version.
+**AI Usage** The final version was completed with the assistance of Claude, as I was struggling to fill the gaps necessary for the CLI interface and logging. For exact updates and changes, please compare both versions in the History section of the file.
